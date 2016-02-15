@@ -17,8 +17,10 @@ int main(int argc, char *argv[])
   filePerms = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH; /* rw-rw-rw- */
   outputFd = open(argv[2], openFlags, filePerms);
   lseek(inputFd, -1, SEEK_END);
-  int pos = 1;
+  int pos = -1;
   
+  
+  //GITHUB TESTING COMMENT
 
   /* Transfer data until we encounter end of input or an error */
   while (  (numRead = read(inputFd, buf, BUF_SIZE)) > 0)
