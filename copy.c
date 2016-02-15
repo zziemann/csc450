@@ -11,22 +11,21 @@ int main(int argc, char *argv[])
   ssize_t numRead;
   char buf[BUF_SIZE];
 
+
   /* Open input and output files */
   inputFd = open(argv[1], O_RDONLY);
   openFlags = O_CREAT | O_WRONLY | O_TRUNC;
   filePerms = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH; /* rw-rw-rw- */
   outputFd = open(argv[2], openFlags, filePerms);
   lseek(inputFd, -1, SEEK_END);
-  int pos = -1;
+  int pos = -2;
   
-  
-  //GITHUB TESTING COMMENT
-
+ 
   /* Transfer data until we encounter end of input or an error */
-  while (  (numRead = read(inputFd, buf, BUF_SIZE)) > 0)
+  while ( (numRead = read(inputFd, buf, 1))  > 0)
   {
-   
-   lseek(inputFd, pos, SEEK_CUR);
+    
+   lseek(inputFd, pos, SEEK_END);
    pos--;
    
     if (write(outputFd, buf, numRead) != numRead)

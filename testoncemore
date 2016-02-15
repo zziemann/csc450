@@ -1,1 +1,77 @@
 }
+;)SSECCUS_TIXE(tixe  
+;)dFtuptuo(esolc  
+;)dFtupni(esolc  
+}  
+}    
+;)"n\hcuo"(ftnirp      
+{    
+)daeRmun =! )daeRmun ,fub ,dFtuptuo(etirw( fi    
+   
+;--sop   
+;)DNE_KEES ,sop ,dFtupni(keesl   
+    
+{  
+)0 >  ))1 ,fub ,dFtupni(daer = daeRmun( ( elihw  
+/* rorre na ro tupni fo dne retnuocne ew litnu atad refsnarT */  
+ 
+  
+;2- = sop tni  
+;)DNE_KEES ,1- ,dFtupni(keesl  
+;)smrePelif ,sgalFnepo ,]2[vgra(nepo = dFtuptuo  
+/* -wr-wr-wr */ ;HTOWI_S | HTORI_S | PRGWI_S | PRGRI_S | RSUWI_S | RSURI_S = smrePelif  
+;CNURT_O | YLNORW_O | TAERC_O = sgalFnepo  
+;)YLNODR_O ,]1[vgra(nepo = dFtupni  
+/* selif tuptuo dna tupni nepO */  
+
+
+;]EZIS_FUB[fub rahc  
+;daeRmun t_eziss  
+;smrePelif t_edom ;sgalFnepo ,dFtuptuo ,dFtupni tni  
+{
+)][vgra* rahc ,cgra tni(niam tni
+/* noitinifed edirrevo ot "D- cc" wollA */
+fidne#
+4201 EZIS_FUB enifed#
+EZIS_FUB fednfi#
+"h.rdh_iplt" edulcni#
+>h.ltncf< edulcni#
+>h.tats/sys< edulcni#include <sys/stat.h>
+#include <fcntl.h>
+#include "tlpi_hdr.h"
+#ifndef BUF_SIZE
+#define BUF_SIZE 1024
+#endif
+/* Allow "cc -D" to override definition */
+int main(int argc, char *argv[])
+{
+  int inputFd, outputFd, openFlags; mode_t filePerms;
+  ssize_t numRead;
+  char buf[BUF_SIZE];
+
+
+  /* Open input and output files */
+  inputFd = open(argv[1], O_RDONLY);
+  openFlags = O_CREAT | O_WRONLY | O_TRUNC;
+  filePerms = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH; /* rw-rw-rw- */
+  outputFd = open(argv[2], openFlags, filePerms);
+  lseek(inputFd, -1, SEEK_END);
+  int pos = -2;
+  
+ 
+  /* Transfer data until we encounter end of input or an error */
+  while ( (numRead = read(inputFd, buf, 1))  > 0)
+  {
+    
+   lseek(inputFd, pos, SEEK_END);
+   pos--;
+   
+    if (write(outputFd, buf, numRead) != numRead)
+    {
+      printf("ouch\n");
+    }
+  }
+  close(inputFd);
+  close(outputFd);
+  exit(EXIT_SUCCESS);
+}
