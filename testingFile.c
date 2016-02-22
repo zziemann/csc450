@@ -13,6 +13,12 @@ int main(int argc, char** argv)
     int num;
     int i;
     
+    int theArray[52];
+    
+    i = sizeof(theArray)/sizeof(theArray[0]);
+    printf("%d\n", i);
+    
+    
     /*
     int numTotal = 10;
     
@@ -37,13 +43,10 @@ int main(int argc, char** argv)
         printf("woot: %d\n", nums[i]);
     }
     ////////////////////////////////////////////
-    if(begin != end)
-    {
-        pid_t pidRight = fork();
-        pid_t pidLeft = fork();
-        
-    }
-    */
+    
+    
+    
+    
     
     printf("About to Fork...\n");
     
@@ -62,10 +65,12 @@ int main(int argc, char** argv)
         to terminate. */
         
     
-        
+    
+    
+    /*    
     }
     
-    /*
+    
     if(pid == 0)
     {
         for(; i < 100; i++)
