@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+
 
 int main(int argc, char** argv)
 {
@@ -14,10 +16,6 @@ int main(int argc, char** argv)
     server->sin_family = AF_INET;
     server->sin_port = htons( port );
     //memset(server->sin_zero, '\0', sizeof server->sin_zero);
-    
-    
-    char* messy = "back atcha";
-    
     
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     error = connect(sockfd, (struct sockaddr *)server, sizeof(struct sockaddr));
@@ -43,7 +41,8 @@ int main(int argc, char** argv)
                 puts("Reply received\n");
                 puts(server_reply);
                 
-                send(sockfd , messy , strlen(messy) , 0);
+                char* message = "yo\tyo dis is message from client";
+                send(sockfd, message , strlen(message) , 0);
             }
         }
     }
