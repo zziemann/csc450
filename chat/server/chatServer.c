@@ -6,30 +6,37 @@
 #include <stdio.h>
 #include <string.h>
 #include <semaphore.h>
-#include <pthread.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 void setupServerSocket();
-void broadcast(char* msg, int* clients, int numClients);
+void broadcast(char* msg);
 void sendMessage(char* msg, int client);
 void childStuff(int clientfd);
 void receiveMessage(int clientfd);
 
 struct sockaddr_in* server;
-uint16_t port = 3000;
+uint16_t port = 4000;
 int sockfd;
 socklen_t serverSize;
+int clientsID;
+int numberOfConnectedClientsID;
 
 int main(int argc, char** argv)
 {
     server = malloc(sizeof(struct sockaddr_in));
     int clientfd;
+   
+    //create share mem
     int MAX_CLIENTS = 1000;
-    int* clients = malloc(MAX_CLIENTS * sizeof(int));
-    int numberOfConnectedClients = 0;
+    clientsID = shmget(IPC_PRIVATE, MAX_CLIENTS * sizeof(int), IPC_CREAT | 0666);
+    numberOfConnectedClientsID = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
+    
+    //link to shared mem
+    int* clients = shmat(clientsID, NULL, 0);
+    int* numberOfConnectedClients = shmat(numberOfConnectedClientsID, NULL, 0);
     sem_t block;
     sem_init(&block, 0, 1);
-    sem_wait(&block);
-    
     
     char* message = "hello";
     int pid;
@@ -43,9 +50,9 @@ int main(int argc, char** argv)
     printf("Client Connected.... %d\n", clientfd);
     
     //add this client to our array of clients
-    clients[numberOfConnectedClients++] = clientfd;
+    sem_wait(&block);
+    clients[(*numberOfConnectedClients)++] = clientfd;
     sem_post(&block);
-    //broadcast(message, clients, numberOfConnectedClients);
     
     pid = fork();
     
@@ -65,8 +72,7 @@ int main(int argc, char** argv)
 
 void childStuff(int clientfd)
 {
-    printf("Child Stuff\n");
-    sendMessage("Hello from the child.  Do you have candy?", clientfd);
+    sendMessage("                     <--Hello from the child.", clientfd);
     receiveMessage(clientfd);
 }
 
@@ -75,7 +81,7 @@ void receiveMessage(int clientfd)
     int MAX_SIZE = 2000 * sizeof(char);
     char* server_reply = malloc(MAX_SIZE);
     int error = recv(clientfd, server_reply, MAX_SIZE, 0);
-    puts(server_reply);
+    broadcast(server_reply);
 }
 
 void setupServerSocket()
@@ -110,21 +116,41 @@ void setupServerSocket()
 void sendMessage(char* msg, int client)
 {
     puts("Sending a message");
+    //printf("Client Number: %d\n", client);
     printf("Size of msg is: %d\n", (int)sizeof(*msg));
     printf("Size of msg is: %d\n", (int)strlen(msg));
     send(client , msg , strlen(msg) , 0);
     puts("Message Sent");
 }
 
-void broadcast(char* msg, int* clients, int numClients)
+void broadcast(char* msg)
 {
-    int i;
-    for(i = 0; i < numClients; i++)
+    int* clients = shmat(clientsID, NULL, 0);
+    int* numberOfConnectedClients = shmat(numberOfConnectedClientsID, NULL, 0);
+    
+    
+    char* info = strstr(msg, "msgpublic");
+    printf("here is broadcast info: %s\n", info);
+    //puts(strcmp(msg, "public"));
+    if( strcmp(info, "msgpublic") != 0)
     {
-        printf("Trying to send to client with FD: %d\n", clients[i]);
+        int i;
+        for(i = 0; i < *numberOfConnectedClients; i++)
+        {
+            printf("Trying to send to client with FD: %d\n", clients[i]);
+            //printf("Trying to send to client with FD: %d\n", *(clients + (i * sizeof(int))));
+            send(clients[i] , msg , strlen(msg) , 0);
+            puts("sent");
+        } 
+    }
+    else
+    {
+        printf("Trying to send to client with FD: %d\n", info);
         //printf("Trying to send to client with FD: %d\n", *(clients + (i * sizeof(int))));
-        
-        send(clients[i] , msg , strlen(msg) , 0);
+        send(info , msg , strlen(msg) , 0);
         puts("sent");
     }
+
+    
+    
 }
