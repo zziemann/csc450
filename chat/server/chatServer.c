@@ -8,6 +8,7 @@
 #include <semaphore.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <signal.h>
 
 void setupServerSocket();
 void broadcast(char* msg);
@@ -21,6 +22,14 @@ int sockfd;
 socklen_t serverSize;
 int clientsID;
 int numberOfConnectedClientsID;
+
+void sig_handler(int signo)
+{
+  if (signo == SIGINT)
+  {
+    printf("received SIGINT\n");
+  }
+}
 
 int main(int argc, char** argv)
 {
@@ -55,6 +64,23 @@ int main(int argc, char** argv)
     sem_post(&block);
     
     pid = fork();
+    
+    if(pid != 0)
+    {
+      if (signal(SIGINT, sig_handler) == SIG_ERR)
+      {
+         printf("\ncan't catch SIGINT\n");
+      }
+    }
+    /*
+    else
+    {
+      while(1)
+      {
+         sleep(1);
+      }
+    } 
+    */
     
     if(pid == 0)
     {
@@ -154,3 +180,4 @@ void broadcast(char* msg)
     
     
 }
+

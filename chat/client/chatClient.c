@@ -43,14 +43,27 @@ int main(int argc, char** argv)
                 puts("Reply received\n");
                 puts(server_reply);
                 
-                //char* message = "yo\tyo";
-                char message[100];
-                char getsRead[100];
-                puts("Type your message now! If public, type 'msgpublic' at end.  If private, type 'msg' plus client number: ");
-                gets(getsRead);
-                message = getsRead;
-                puts("Message sent hopefully.");
-                send(sockfd, message , strlen(message) , 0);
+                
+                puts("Please enter something:");
+                char* command;
+                char* who;
+                char* msg;
+            
+                scanf("%ms", &command);
+                if(strcmp("tell", command) == 0)
+                {
+                    scanf("%ms %m[^\n]", &who, &msg);
+                    printf("Sending private message (%s) to: %s\n", msg, who);
+                }
+                else
+                {
+                    scanf("%m[^\n]", &msg);
+                    char* destination = malloc(sizeof(command) + sizeof(msg));
+                    strcpy(destination, command);
+                    strcat(destination, msg);
+                    printf("Broadcasting: %s\n", destination);
+                }
+                send(sockfd, msg, strlen(msg) , 0);
             }
         }
     }

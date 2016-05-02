@@ -4,7 +4,7 @@
 int main(int argc, char** argv)
 {
     // /*
-    //Showing how to cut off the beginning
+    //Showing how to cut off the beginning, also comparing 
     int maxSize = 1000;
     char* s = "lol msg 4 hello";
     char* s2 = "world";
